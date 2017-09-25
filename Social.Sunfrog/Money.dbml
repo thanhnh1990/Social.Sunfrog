@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="Money" Class="MoneyDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=ADMIN;Initial Catalog=Money;Persist Security Info=True;User ID=sa" SettingsObjectName="Social.Sunfrog.Properties.Settings" SettingsPropertyName="MoneyConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Category" Member="Categories">
+    <Type Name="Category">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Site_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Id_Source" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="IsParent" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Parent_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Slug" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="Image" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="IsActive" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="LoadType" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Category_Category" Member="Categories" ThisKey="Id" OtherKey="Parent_Id" Type="Category" />
+      <Association Name="Category_ProductCategoryDetail" Member="ProductCategoryDetails" ThisKey="Id" OtherKey="Category_Id" Type="ProductCategoryDetail" />
+      <Association Name="Category_Category" Member="Category1" ThisKey="Parent_Id" OtherKey="Id" Type="Category" IsForeignKey="true" />
+      <Association Name="Source_Category" Member="Source" ThisKey="Id_Source" OtherKey="Id" Type="Source" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ProductCategoryDetail" Member="ProductCategoryDetails">
+    <Type Name="ProductCategoryDetail">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Product_Id" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Category_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Category_ProductCategoryDetail" Member="Category" ThisKey="Category_Id" OtherKey="Id" Type="Category" IsForeignKey="true" />
+      <Association Name="Product_ProductCategoryDetail" Member="Product" ThisKey="Product_Id" OtherKey="Id" Type="Product" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Products" Member="Products">
+    <Type Name="Product">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Sku" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(1000)" CanBeNull="true" />
+      <Column Name="Source_Id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Price" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Column Name="Group_Id" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="ProductTypeId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Url_Name" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="Url_Source" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="Image" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Keywords" Type="System.String" DbType="NVarChar(150)" CanBeNull="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Product_ProductCategoryDetail" Member="ProductCategoryDetails" ThisKey="Id" OtherKey="Product_Id" Type="ProductCategoryDetail" />
+      <Association Name="Product_ProductStatus" Member="ProductStatus" ThisKey="Id" OtherKey="Product_Id" Type="ProductStatus" />
+      <Association Name="Source_Product" Member="Source" ThisKey="Source_Id" OtherKey="Id" Type="Source" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ProductStatus" Member="ProductStatus">
+    <Type Name="ProductStatus">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Product_Id" Type="System.Int64" DbType="BigInt" CanBeNull="true" />
+      <Column Name="Website" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Is_Post" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="CreateDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Product_ProductStatus" Member="Product" ThisKey="Product_Id" OtherKey="Id" Type="Product" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ProductType" Member="ProductTypes">
+    <Type Name="ProductType">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Slug" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(1000)" CanBeNull="true" />
+      <Column Name="Source_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Source_ProductType" Member="Source" ThisKey="Source_Id" OtherKey="Id" Type="Source" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Sources" Member="Sources">
+    <Type Name="Source">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Domain" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="IsActive" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Source_Category" Member="Categories" ThisKey="Id" OtherKey="Id_Source" Type="Category" />
+      <Association Name="Source_Product" Member="Products" ThisKey="Id" OtherKey="Source_Id" Type="Product" />
+      <Association Name="Source_ProductType" Member="ProductTypes" ThisKey="Id" OtherKey="Source_Id" Type="ProductType" />
+    </Type>
+  </Table>
+</Database>
