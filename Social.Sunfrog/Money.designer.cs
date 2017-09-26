@@ -42,16 +42,22 @@ namespace Social.Sunfrog
     partial void InsertProductStatus(ProductStatus instance);
     partial void UpdateProductStatus(ProductStatus instance);
     partial void DeleteProductStatus(ProductStatus instance);
-    partial void InsertProductType(ProductType instance);
-    partial void UpdateProductType(ProductType instance);
-    partial void DeleteProductType(ProductType instance);
     partial void InsertSource(Source instance);
     partial void UpdateSource(Source instance);
     partial void DeleteSource(Source instance);
+    partial void InsertProductPinterest(ProductPinterest instance);
+    partial void UpdateProductPinterest(ProductPinterest instance);
+    partial void DeleteProductPinterest(ProductPinterest instance);
+    partial void InsertPinterest(Pinterest instance);
+    partial void UpdatePinterest(Pinterest instance);
+    partial void DeletePinterest(Pinterest instance);
+    partial void InsertProductType(ProductType instance);
+    partial void UpdateProductType(ProductType instance);
+    partial void DeleteProductType(ProductType instance);
     #endregion
 		
 		public MoneyDataContext() : 
-				base(global::Social.Sunfrog.Properties.Settings.Default.MoneyConnectionString, mappingSource)
+				base(global::Social.Sunfrog.Properties.Settings.Default.MoneyConnectionString1, mappingSource)
 		{
 			OnCreated();
 		}
@@ -112,19 +118,35 @@ namespace Social.Sunfrog
 			}
 		}
 		
-		public System.Data.Linq.Table<ProductType> ProductTypes
-		{
-			get
-			{
-				return this.GetTable<ProductType>();
-			}
-		}
-		
 		public System.Data.Linq.Table<Source> Sources
 		{
 			get
 			{
 				return this.GetTable<Source>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ProductPinterest> ProductPinterests
+		{
+			get
+			{
+				return this.GetTable<ProductPinterest>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Pinterest> Pinterests
+		{
+			get
+			{
+				return this.GetTable<Pinterest>();
+			}
+		}
+		
+		public System.Data.Linq.Table<ProductType> ProductTypes
+		{
+			get
+			{
+				return this.GetTable<ProductType>();
 			}
 		}
 	}
@@ -797,7 +819,11 @@ namespace Social.Sunfrog
 		
 		private EntitySet<ProductStatus> _ProductStatus;
 		
+		private EntitySet<ProductPinterest> _ProductPinterests;
+		
 		private EntityRef<Source> _Source;
+		
+		private EntityRef<ProductType> _ProductType;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -835,7 +861,9 @@ namespace Social.Sunfrog
 		{
 			this._ProductCategoryDetails = new EntitySet<ProductCategoryDetail>(new Action<ProductCategoryDetail>(this.attach_ProductCategoryDetails), new Action<ProductCategoryDetail>(this.detach_ProductCategoryDetails));
 			this._ProductStatus = new EntitySet<ProductStatus>(new Action<ProductStatus>(this.attach_ProductStatus), new Action<ProductStatus>(this.detach_ProductStatus));
+			this._ProductPinterests = new EntitySet<ProductPinterest>(new Action<ProductPinterest>(this.attach_ProductPinterests), new Action<ProductPinterest>(this.detach_ProductPinterests));
 			this._Source = default(EntityRef<Source>);
+			this._ProductType = default(EntityRef<ProductType>);
 			OnCreated();
 		}
 		
@@ -994,6 +1022,10 @@ namespace Social.Sunfrog
 			{
 				if ((this._ProductTypeId != value))
 				{
+					if (this._ProductType.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
 					this.OnProductTypeIdChanging(value);
 					this.SendPropertyChanging();
 					this._ProductTypeId = value;
@@ -1129,6 +1161,19 @@ namespace Social.Sunfrog
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Product_ProductPinterest", Storage="_ProductPinterests", ThisKey="Id", OtherKey="ProductId")]
+		public EntitySet<ProductPinterest> ProductPinterests
+		{
+			get
+			{
+				return this._ProductPinterests;
+			}
+			set
+			{
+				this._ProductPinterests.Assign(value);
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Source_Product", Storage="_Source", ThisKey="Source_Id", OtherKey="Id", IsForeignKey=true)]
 		public Source Source
 		{
@@ -1159,6 +1204,40 @@ namespace Social.Sunfrog
 						this._Source_Id = default(int);
 					}
 					this.SendPropertyChanged("Source");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="ProductType_Product", Storage="_ProductType", ThisKey="ProductTypeId", OtherKey="Id", IsForeignKey=true)]
+		public ProductType ProductType
+		{
+			get
+			{
+				return this._ProductType.Entity;
+			}
+			set
+			{
+				ProductType previousValue = this._ProductType.Entity;
+				if (((previousValue != value) 
+							|| (this._ProductType.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._ProductType.Entity = null;
+						previousValue.Products.Remove(this);
+					}
+					this._ProductType.Entity = value;
+					if ((value != null))
+					{
+						value.Products.Add(this);
+						this._ProductTypeId = value.Id;
+					}
+					else
+					{
+						this._ProductTypeId = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("ProductType");
 				}
 			}
 		}
@@ -1202,6 +1281,18 @@ namespace Social.Sunfrog
 		}
 		
 		private void detach_ProductStatus(ProductStatus entity)
+		{
+			this.SendPropertyChanging();
+			entity.Product = null;
+		}
+		
+		private void attach_ProductPinterests(ProductPinterest entity)
+		{
+			this.SendPropertyChanging();
+			entity.Product = this;
+		}
+		
+		private void detach_ProductPinterests(ProductPinterest entity)
 		{
 			this.SendPropertyChanging();
 			entity.Product = null;
@@ -1382,205 +1473,6 @@ namespace Social.Sunfrog
 						this._Product_Id = default(Nullable<long>);
 					}
 					this.SendPropertyChanged("Product");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ProductType")]
-	public partial class ProductType : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _Id;
-		
-		private string _Name;
-		
-		private string _Slug;
-		
-		private string _Description;
-		
-		private System.Nullable<int> _Source_Id;
-		
-		private EntityRef<Source> _Source;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnIdChanging(int value);
-    partial void OnIdChanged();
-    partial void OnNameChanging(string value);
-    partial void OnNameChanged();
-    partial void OnSlugChanging(string value);
-    partial void OnSlugChanged();
-    partial void OnDescriptionChanging(string value);
-    partial void OnDescriptionChanged();
-    partial void OnSource_IdChanging(System.Nullable<int> value);
-    partial void OnSource_IdChanged();
-    #endregion
-		
-		public ProductType()
-		{
-			this._Source = default(EntityRef<Source>);
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int Id
-		{
-			get
-			{
-				return this._Id;
-			}
-			set
-			{
-				if ((this._Id != value))
-				{
-					this.OnIdChanging(value);
-					this.SendPropertyChanging();
-					this._Id = value;
-					this.SendPropertyChanged("Id");
-					this.OnIdChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Name", DbType="NVarChar(50)")]
-		public string Name
-		{
-			get
-			{
-				return this._Name;
-			}
-			set
-			{
-				if ((this._Name != value))
-				{
-					this.OnNameChanging(value);
-					this.SendPropertyChanging();
-					this._Name = value;
-					this.SendPropertyChanged("Name");
-					this.OnNameChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Slug", DbType="NVarChar(50)")]
-		public string Slug
-		{
-			get
-			{
-				return this._Slug;
-			}
-			set
-			{
-				if ((this._Slug != value))
-				{
-					this.OnSlugChanging(value);
-					this.SendPropertyChanging();
-					this._Slug = value;
-					this.SendPropertyChanged("Slug");
-					this.OnSlugChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Description", DbType="NVarChar(1000)")]
-		public string Description
-		{
-			get
-			{
-				return this._Description;
-			}
-			set
-			{
-				if ((this._Description != value))
-				{
-					this.OnDescriptionChanging(value);
-					this.SendPropertyChanging();
-					this._Description = value;
-					this.SendPropertyChanged("Description");
-					this.OnDescriptionChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Source_Id", DbType="Int")]
-		public System.Nullable<int> Source_Id
-		{
-			get
-			{
-				return this._Source_Id;
-			}
-			set
-			{
-				if ((this._Source_Id != value))
-				{
-					if (this._Source.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnSource_IdChanging(value);
-					this.SendPropertyChanging();
-					this._Source_Id = value;
-					this.SendPropertyChanged("Source_Id");
-					this.OnSource_IdChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Source_ProductType", Storage="_Source", ThisKey="Source_Id", OtherKey="Id", IsForeignKey=true)]
-		public Source Source
-		{
-			get
-			{
-				return this._Source.Entity;
-			}
-			set
-			{
-				Source previousValue = this._Source.Entity;
-				if (((previousValue != value) 
-							|| (this._Source.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Source.Entity = null;
-						previousValue.ProductTypes.Remove(this);
-					}
-					this._Source.Entity = value;
-					if ((value != null))
-					{
-						value.ProductTypes.Add(this);
-						this._Source_Id = value.Id;
-					}
-					else
-					{
-						this._Source_Id = default(Nullable<int>);
-					}
-					this.SendPropertyChanged("Source");
 				}
 			}
 		}
@@ -1821,6 +1713,779 @@ namespace Social.Sunfrog
 		{
 			this.SendPropertyChanging();
 			entity.Source = null;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ProductPinterest")]
+	public partial class ProductPinterest : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private System.Nullable<int> _PinId;
+		
+		private System.Nullable<long> _ProductId;
+		
+		private EntityRef<Product> _Product;
+		
+		private EntityRef<Pinterest> _Pinterest;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnPinIdChanging(System.Nullable<int> value);
+    partial void OnPinIdChanged();
+    partial void OnProductIdChanging(System.Nullable<long> value);
+    partial void OnProductIdChanged();
+    #endregion
+		
+		public ProductPinterest()
+		{
+			this._Product = default(EntityRef<Product>);
+			this._Pinterest = default(EntityRef<Pinterest>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_PinId", DbType="Int")]
+		public System.Nullable<int> PinId
+		{
+			get
+			{
+				return this._PinId;
+			}
+			set
+			{
+				if ((this._PinId != value))
+				{
+					if (this._Pinterest.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnPinIdChanging(value);
+					this.SendPropertyChanging();
+					this._PinId = value;
+					this.SendPropertyChanged("PinId");
+					this.OnPinIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProductId", DbType="BigInt")]
+		public System.Nullable<long> ProductId
+		{
+			get
+			{
+				return this._ProductId;
+			}
+			set
+			{
+				if ((this._ProductId != value))
+				{
+					if (this._Product.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnProductIdChanging(value);
+					this.SendPropertyChanging();
+					this._ProductId = value;
+					this.SendPropertyChanged("ProductId");
+					this.OnProductIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Product_ProductPinterest", Storage="_Product", ThisKey="ProductId", OtherKey="Id", IsForeignKey=true)]
+		public Product Product
+		{
+			get
+			{
+				return this._Product.Entity;
+			}
+			set
+			{
+				Product previousValue = this._Product.Entity;
+				if (((previousValue != value) 
+							|| (this._Product.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Product.Entity = null;
+						previousValue.ProductPinterests.Remove(this);
+					}
+					this._Product.Entity = value;
+					if ((value != null))
+					{
+						value.ProductPinterests.Add(this);
+						this._ProductId = value.Id;
+					}
+					else
+					{
+						this._ProductId = default(Nullable<long>);
+					}
+					this.SendPropertyChanged("Product");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Pinterest_ProductPinterest", Storage="_Pinterest", ThisKey="PinId", OtherKey="Id", IsForeignKey=true)]
+		public Pinterest Pinterest
+		{
+			get
+			{
+				return this._Pinterest.Entity;
+			}
+			set
+			{
+				Pinterest previousValue = this._Pinterest.Entity;
+				if (((previousValue != value) 
+							|| (this._Pinterest.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Pinterest.Entity = null;
+						previousValue.ProductPinterests.Remove(this);
+					}
+					this._Pinterest.Entity = value;
+					if ((value != null))
+					{
+						value.ProductPinterests.Add(this);
+						this._PinId = value.Id;
+					}
+					else
+					{
+						this._PinId = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("Pinterest");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Pinterest")]
+	public partial class Pinterest : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private string _PinId;
+		
+		private string _Old_Id;
+		
+		private string _Board;
+		
+		private string _Backlink;
+		
+		private string _Note;
+		
+		private string _Image_Url;
+		
+		private System.Nullable<int> _Type;
+		
+		private System.Nullable<int> _Is_Pin;
+		
+		private System.DateTime _Created_Date;
+		
+		private System.Nullable<System.DateTime> _Update_Date;
+		
+		private EntitySet<ProductPinterest> _ProductPinterests;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnPinIdChanging(string value);
+    partial void OnPinIdChanged();
+    partial void OnOld_IdChanging(string value);
+    partial void OnOld_IdChanged();
+    partial void OnBoardChanging(string value);
+    partial void OnBoardChanged();
+    partial void OnBacklinkChanging(string value);
+    partial void OnBacklinkChanged();
+    partial void OnNoteChanging(string value);
+    partial void OnNoteChanged();
+    partial void OnImage_UrlChanging(string value);
+    partial void OnImage_UrlChanged();
+    partial void OnTypeChanging(System.Nullable<int> value);
+    partial void OnTypeChanged();
+    partial void OnIs_PinChanging(System.Nullable<int> value);
+    partial void OnIs_PinChanged();
+    partial void OnCreated_DateChanging(System.DateTime value);
+    partial void OnCreated_DateChanged();
+    partial void OnUpdate_DateChanging(System.Nullable<System.DateTime> value);
+    partial void OnUpdate_DateChanged();
+    #endregion
+		
+		public Pinterest()
+		{
+			this._ProductPinterests = new EntitySet<ProductPinterest>(new Action<ProductPinterest>(this.attach_ProductPinterests), new Action<ProductPinterest>(this.detach_ProductPinterests));
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_PinId", DbType="NVarChar(50)")]
+		public string PinId
+		{
+			get
+			{
+				return this._PinId;
+			}
+			set
+			{
+				if ((this._PinId != value))
+				{
+					this.OnPinIdChanging(value);
+					this.SendPropertyChanging();
+					this._PinId = value;
+					this.SendPropertyChanged("PinId");
+					this.OnPinIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Old_Id", DbType="NVarChar(50)")]
+		public string Old_Id
+		{
+			get
+			{
+				return this._Old_Id;
+			}
+			set
+			{
+				if ((this._Old_Id != value))
+				{
+					this.OnOld_IdChanging(value);
+					this.SendPropertyChanging();
+					this._Old_Id = value;
+					this.SendPropertyChanged("Old_Id");
+					this.OnOld_IdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Board", DbType="NVarChar(100)")]
+		public string Board
+		{
+			get
+			{
+				return this._Board;
+			}
+			set
+			{
+				if ((this._Board != value))
+				{
+					this.OnBoardChanging(value);
+					this.SendPropertyChanging();
+					this._Board = value;
+					this.SendPropertyChanged("Board");
+					this.OnBoardChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Backlink", DbType="NVarChar(500)")]
+		public string Backlink
+		{
+			get
+			{
+				return this._Backlink;
+			}
+			set
+			{
+				if ((this._Backlink != value))
+				{
+					this.OnBacklinkChanging(value);
+					this.SendPropertyChanging();
+					this._Backlink = value;
+					this.SendPropertyChanged("Backlink");
+					this.OnBacklinkChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Note", DbType="NVarChar(1000)")]
+		public string Note
+		{
+			get
+			{
+				return this._Note;
+			}
+			set
+			{
+				if ((this._Note != value))
+				{
+					this.OnNoteChanging(value);
+					this.SendPropertyChanging();
+					this._Note = value;
+					this.SendPropertyChanged("Note");
+					this.OnNoteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Image_Url", DbType="NVarChar(500)")]
+		public string Image_Url
+		{
+			get
+			{
+				return this._Image_Url;
+			}
+			set
+			{
+				if ((this._Image_Url != value))
+				{
+					this.OnImage_UrlChanging(value);
+					this.SendPropertyChanging();
+					this._Image_Url = value;
+					this.SendPropertyChanged("Image_Url");
+					this.OnImage_UrlChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Type", DbType="Int")]
+		public System.Nullable<int> Type
+		{
+			get
+			{
+				return this._Type;
+			}
+			set
+			{
+				if ((this._Type != value))
+				{
+					this.OnTypeChanging(value);
+					this.SendPropertyChanging();
+					this._Type = value;
+					this.SendPropertyChanged("Type");
+					this.OnTypeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Is_Pin", DbType="Int")]
+		public System.Nullable<int> Is_Pin
+		{
+			get
+			{
+				return this._Is_Pin;
+			}
+			set
+			{
+				if ((this._Is_Pin != value))
+				{
+					this.OnIs_PinChanging(value);
+					this.SendPropertyChanging();
+					this._Is_Pin = value;
+					this.SendPropertyChanged("Is_Pin");
+					this.OnIs_PinChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Created_Date", DbType="DateTime NOT NULL")]
+		public System.DateTime Created_Date
+		{
+			get
+			{
+				return this._Created_Date;
+			}
+			set
+			{
+				if ((this._Created_Date != value))
+				{
+					this.OnCreated_DateChanging(value);
+					this.SendPropertyChanging();
+					this._Created_Date = value;
+					this.SendPropertyChanged("Created_Date");
+					this.OnCreated_DateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Update_Date", DbType="DateTime")]
+		public System.Nullable<System.DateTime> Update_Date
+		{
+			get
+			{
+				return this._Update_Date;
+			}
+			set
+			{
+				if ((this._Update_Date != value))
+				{
+					this.OnUpdate_DateChanging(value);
+					this.SendPropertyChanging();
+					this._Update_Date = value;
+					this.SendPropertyChanged("Update_Date");
+					this.OnUpdate_DateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Pinterest_ProductPinterest", Storage="_ProductPinterests", ThisKey="Id", OtherKey="PinId")]
+		public EntitySet<ProductPinterest> ProductPinterests
+		{
+			get
+			{
+				return this._ProductPinterests;
+			}
+			set
+			{
+				this._ProductPinterests.Assign(value);
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_ProductPinterests(ProductPinterest entity)
+		{
+			this.SendPropertyChanging();
+			entity.Pinterest = this;
+		}
+		
+		private void detach_ProductPinterests(ProductPinterest entity)
+		{
+			this.SendPropertyChanging();
+			entity.Pinterest = null;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ProductType")]
+	public partial class ProductType : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private string _Name;
+		
+		private string _Slug;
+		
+		private string _Description;
+		
+		private System.Nullable<int> _Source_Id;
+		
+		private System.Nullable<int> _Is_Active;
+		
+		private EntitySet<Product> _Products;
+		
+		private EntityRef<Source> _Source;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnNameChanging(string value);
+    partial void OnNameChanged();
+    partial void OnSlugChanging(string value);
+    partial void OnSlugChanged();
+    partial void OnDescriptionChanging(string value);
+    partial void OnDescriptionChanged();
+    partial void OnSource_IdChanging(System.Nullable<int> value);
+    partial void OnSource_IdChanged();
+    partial void OnIs_ActiveChanging(System.Nullable<int> value);
+    partial void OnIs_ActiveChanged();
+    #endregion
+		
+		public ProductType()
+		{
+			this._Products = new EntitySet<Product>(new Action<Product>(this.attach_Products), new Action<Product>(this.detach_Products));
+			this._Source = default(EntityRef<Source>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Name", DbType="NVarChar(50)")]
+		public string Name
+		{
+			get
+			{
+				return this._Name;
+			}
+			set
+			{
+				if ((this._Name != value))
+				{
+					this.OnNameChanging(value);
+					this.SendPropertyChanging();
+					this._Name = value;
+					this.SendPropertyChanged("Name");
+					this.OnNameChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Slug", DbType="NVarChar(50)")]
+		public string Slug
+		{
+			get
+			{
+				return this._Slug;
+			}
+			set
+			{
+				if ((this._Slug != value))
+				{
+					this.OnSlugChanging(value);
+					this.SendPropertyChanging();
+					this._Slug = value;
+					this.SendPropertyChanged("Slug");
+					this.OnSlugChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Description", DbType="NVarChar(1000)")]
+		public string Description
+		{
+			get
+			{
+				return this._Description;
+			}
+			set
+			{
+				if ((this._Description != value))
+				{
+					this.OnDescriptionChanging(value);
+					this.SendPropertyChanging();
+					this._Description = value;
+					this.SendPropertyChanged("Description");
+					this.OnDescriptionChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Source_Id", DbType="Int")]
+		public System.Nullable<int> Source_Id
+		{
+			get
+			{
+				return this._Source_Id;
+			}
+			set
+			{
+				if ((this._Source_Id != value))
+				{
+					if (this._Source.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnSource_IdChanging(value);
+					this.SendPropertyChanging();
+					this._Source_Id = value;
+					this.SendPropertyChanged("Source_Id");
+					this.OnSource_IdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Is_Active", DbType="Int")]
+		public System.Nullable<int> Is_Active
+		{
+			get
+			{
+				return this._Is_Active;
+			}
+			set
+			{
+				if ((this._Is_Active != value))
+				{
+					this.OnIs_ActiveChanging(value);
+					this.SendPropertyChanging();
+					this._Is_Active = value;
+					this.SendPropertyChanged("Is_Active");
+					this.OnIs_ActiveChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="ProductType_Product", Storage="_Products", ThisKey="Id", OtherKey="ProductTypeId")]
+		public EntitySet<Product> Products
+		{
+			get
+			{
+				return this._Products;
+			}
+			set
+			{
+				this._Products.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Source_ProductType", Storage="_Source", ThisKey="Source_Id", OtherKey="Id", IsForeignKey=true)]
+		public Source Source
+		{
+			get
+			{
+				return this._Source.Entity;
+			}
+			set
+			{
+				Source previousValue = this._Source.Entity;
+				if (((previousValue != value) 
+							|| (this._Source.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Source.Entity = null;
+						previousValue.ProductTypes.Remove(this);
+					}
+					this._Source.Entity = value;
+					if ((value != null))
+					{
+						value.ProductTypes.Add(this);
+						this._Source_Id = value.Id;
+					}
+					else
+					{
+						this._Source_Id = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("Source");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_Products(Product entity)
+		{
+			this.SendPropertyChanging();
+			entity.ProductType = this;
+		}
+		
+		private void detach_Products(Product entity)
+		{
+			this.SendPropertyChanging();
+			entity.ProductType = null;
 		}
 	}
 }

@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Crawler.cs" />
     <Compile Include="DataLoad.cs" />
+    <Compile Include="Execute.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
