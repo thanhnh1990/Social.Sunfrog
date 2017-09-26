@@ -11,7 +11,7 @@ namespace Social.Sunfrog
         public IEnumerable<Category> Get_Category_To_Search()
         {
             MoneyDataContext context = new MoneyDataContext();
-            var query = from search in context.Categories
+            var query = from search in contCheck_Exits_Productext.Categories
                         where search.IsActive == 1 && search.IsParent == 0
                         select search;
             return query;
@@ -66,11 +66,11 @@ namespace Social.Sunfrog
             return result;
         }
 
-        public Product Get_Product_Type_By_Id(int id)
+        public ProductType Get_Product_Type_By_Id(int id)
         {
             MoneyDataContext context = new MoneyDataContext();
-            var query = from product in context.Products
-                        where product.Source_Id == id
+            var query = from product in context.ProductTypes
+                        where product.Id == id
                         select product;
             return query.FirstOrDefault();
         }
@@ -102,7 +102,7 @@ namespace Social.Sunfrog
             return prod;
         }
 
-        public bool Insert_Product_Category(int product_id, int category_id)
+        public bool Insert_Product_Category(long product_id, int category_id)
         {
             bool result = false;
             try
@@ -123,7 +123,7 @@ namespace Social.Sunfrog
 
         // Insert Pinterest
 
-        public Pinterest Insert_Pinterest(int product_id, DataLoad data)
+        public Pinterest Insert_Pinterest(long product_id, DataLoad data)
         {
             MoneyDataContext db = new MoneyDataContext();
             Pinterest prod = new Pinterest
@@ -146,7 +146,7 @@ namespace Social.Sunfrog
             return prod;
         }
 
-        public bool Insert_Product_Link_Pinterest(int product_id, int pinterest_id)
+        public bool Insert_Product_Link_Pinterest(long product_id, int pinterest_id)
         {
             bool result = false;
             try

@@ -26,7 +26,7 @@ namespace Social.Sunfrog
             IRestResponse response = client.Execute(request);
             return response.Content;
         }
-        public int ReadHtmlResponse(string url_sun, string category, string tag, int id_type, int dem)
+        public int ReadHtmlResponse(string url_sun, string category, string tag, int category_id, int id_type, int dem)
         {
             int result = 0;
             Logs log = new Logs();
@@ -62,6 +62,7 @@ namespace Social.Sunfrog
                             data.CategorySearch = category;
                             data.Tag = tag;
                             data.Type = id_type;
+                            data.CategoryId = category_id;
                             int result_count = logic.execute(data);
                             if (result_count == 0)
                                 break;

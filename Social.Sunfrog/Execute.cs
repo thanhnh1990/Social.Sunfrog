@@ -38,7 +38,7 @@ namespace Social.Sunfrog
                                 else
                                     count_more = count + 1;
                                 string url = TypeSearch(cat, type.Slug, count_more);
-                                ddot = crawler.ReadHtmlResponse(url, parent_name, cat.Name, type.Id, i);
+                                ddot = crawler.ReadHtmlResponse(url, parent_name, cat.Name, cat.Id, type.Id, i);
                                 if (ddot == -1)
                                     return false;
                                 else if (ddot == 2)
