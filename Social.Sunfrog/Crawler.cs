@@ -63,6 +63,7 @@ namespace Social.Sunfrog
                             data.Tag = tag;
                             data.Type = id_type;
                             data.CategoryId = category_id;
+                            data.UrlName = "/" + data.Tag + "/" + data.UrlName + "-" + data.Sku;
                             int result_count = logic.execute(data);
                             if (result_count == 0)
                                 break;

@@ -11,7 +11,7 @@ namespace Social.Sunfrog
         public IEnumerable<Category> Get_Category_To_Search()
         {
             MoneyDataContext context = new MoneyDataContext();
-            var query = from search in contCheck_Exits_Productext.Categories
+            var query = from search in context.Categories
                         where search.IsActive == 1 && search.IsParent == 0
                         select search;
             return query;

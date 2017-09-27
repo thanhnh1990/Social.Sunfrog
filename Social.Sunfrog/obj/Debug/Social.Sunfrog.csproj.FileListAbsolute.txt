@@ -1,2 +1,10 @@
 F:\Projects\Social\Social.Sunfrog\Social.Sunfrog\bin\Debug\Social.Sunfrog.exe.config
 D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\bin\Debug\Social.Sunfrog.exe.config
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\bin\Debug\Social.Sunfrog.exe
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\bin\Debug\Social.Sunfrog.pdb
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\obj\Debug\Social.Sunfrog.csprojResolveAssemblyReference.cache
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\obj\Debug\Social.Sunfrog.Home.resources
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\obj\Debug\Social.Sunfrog.Properties.Resources.resources
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\obj\Debug\Social.Sunfrog.csproj.GenerateResource.Cache
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\obj\Debug\Social.Sunfrog.exe
+D:\Projects\Social\Social.Sunfrog\Social.Sunfrog\obj\Debug\Social.Sunfrog.pdb
